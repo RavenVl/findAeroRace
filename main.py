@@ -6,7 +6,8 @@ import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
-
+#TODO add edit record
+#TODO process add empty data in add port
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
@@ -30,6 +31,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.randButton.clicked.connect(self.find_rand_port)
         self.findFlyButton.clicked.connect(self.find_flights)
         self.delButton.clicked.connect(self.del_record)
+        self.writeButton_2.clicked.connect(self.write_edit)
         self.ports = None
         self.port_depart = None
         self.fill_my_ports()
@@ -39,6 +41,30 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.validator = Validator(self)
         self.icaoEdit.setValidator(self.validator)
         self.fromEdit.setValidator(self.validator)
+
+    def write_edit(self):
+        row = self.tableMyPorts.currentItem().row()
+        edit_dict = {
+            'icao_code': self.tableMyPorts.item(row, 0).text(),
+            'name_eng': self.tableMyPorts.item(row, 1).text(),
+            'city_eng': self.tableMyPorts.item(row, 2).text(),
+            'country_eng': self.tableMyPorts.item(row, 3).text(),
+            'iso_code': self.tableMyPorts.item(row, 4).text(),
+            'latitude': self.tableMyPorts.item(row, 5).text(),
+            'longitude': self.tableMyPorts.item(row, 6).text(),
+            'runway_length': self.tableMyPorts.item(row, 7).text(),
+            'runway_elevation': self.tableMyPorts.item(row, 8).text(),
+            'id': int(self.tableMyPorts.item(row, 9).text()),
+        }
+        print(edit_dict)
+        try:
+            # self.db['my_data'].update().where(id=edit_dict['id']).values(edit_dict)
+        # update().where(table.c.id==7).values(name='foo')
+            self.db['my_data'].update(edit_dict, ['id'])
+            # data = dict(id=10, title='I am a banana!')
+            # table.update(data, ['id'])
+        except Exception as e:
+            print(e)
 
     def del_record(self):
         row = self.tableMyPorts.currentItem().row()
