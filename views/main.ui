@@ -407,6 +407,11 @@
         <string>Превышение</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>ID</string>
+       </property>
+      </column>
      </widget>
      <widget class="QPushButton" name="findButtonApinfo">
       <property name="geometry">
@@ -511,6 +516,32 @@
         <string>Футах</string>
        </property>
       </widget>
+     </widget>
+     <widget class="QPushButton" name="delButton">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>540</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Удалить</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="writeButton_2">
+      <property name="geometry">
+       <rect>
+        <x>440</x>
+        <y>540</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Записать</string>
+      </property>
      </widget>
     </widget>
    </widget>

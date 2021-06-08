@@ -9,9 +9,11 @@ from loguru import logger
 
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
+
 class Validator(QtGui.QValidator):
     def validate(self, string, pos):
         return QtGui.QValidator.Acceptable, string.upper(), pos
+
 
 class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def __init__(self):
@@ -27,15 +29,35 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.coordButton.clicked.connect(self.calc_coord)
         self.randButton.clicked.connect(self.find_rand_port)
         self.findFlyButton.clicked.connect(self.find_flights)
+        self.delButton.clicked.connect(self.del_record)
         self.ports = None
         self.port_depart = None
         self.fill_my_ports()
-        self.metr_fut = 1 #3.281
+        self.metr_fut = 1  # 3.281
         self.radioButtonM.toggled.connect(self.setMeter)
         self.radioButtonF.toggled.connect(self.setFut)
         self.validator = Validator(self)
         self.icaoEdit.setValidator(self.validator)
         self.fromEdit.setValidator(self.validator)
+
+    def del_record(self):
+        row = self.tableMyPorts.currentItem().row()
+        cell = self.tableMyPorts.item(row, 9).text()
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setText(f"Реально хотите удалить {self.tableMyPorts.item(row, 0).text()} ?")
+        msgBox.setWindowTitle("Удаление")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        returnValue = msgBox.exec()
+        if returnValue == QMessageBox.Ok:
+            print('OK clicked')
+            try:
+
+                self.db['my_data'].delete(id=cell)
+                self.fill_my_ports()
+            except Exception as e:
+                print(e)
 
     def setMeter(self):
         self.metr_fut = 1
@@ -57,7 +79,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.port_depart = random.choice(self.ports)
         self.fromEdit.setText(self.port_depart['icao_code'])
 
-
     def find_flights(self):
         if self.port_depart is None:
             temp_port = self.db['my_data'].find_one(icao_code=self.fromEdit.text())
@@ -68,17 +89,18 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 msgBox.setText("Введи правильный порт")
                 msgBox.exec_()
 
-
         self.listWidget.clear()
         max_dist = float(self.distEdit.text())
 
-        rez = [f'FROM {self.port_depart["icao_code"]}  len runway - {float(self.port_depart["runway_length"])*3.281} ft', "TO:"]
+        rez = [
+            f'FROM {self.port_depart["icao_code"]}  len runway - {float(self.port_depart["runway_length"]) * 3.281} ft',
+            "TO:"]
         for port in self.ports:
             dist = IcaoApp.calc_dist(self.port_depart['latitude'], port['latitude'], self.port_depart['longitude'],
-                                  port['longitude'])
+                                     port['longitude'])
             if max_dist > dist > 1:
-
-                rez.append(f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"])*3.281 if port["runway_length"]!= "" else 0} ft')
+                rez.append(
+                    f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
         if len(rez) > 2:
             self.listWidget.addItems(rez)
         else:
@@ -86,10 +108,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             msgBox.setText("Нет портов в доступности!")
             msgBox.exec_()
 
-
-
     def calc_coord(self):
         _translate = QtCore.QCoreApplication.translate
+
         def calc(coord):
             if coord[-1] == 'N' or coord[-1] == 'E':
                 return float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
@@ -106,7 +127,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.latEdit.setText(coord_lat)
         self.longEdit.setText(coord_long)
 
-
     def add_my_port(self):
         add_dict = {
             'icao_code': self.icaoEdit.text(),
@@ -116,8 +136,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             'iso_code': self.code_countryEdit.text(),
             'latitude': self.latEdit.text(),
             'longitude': self.longEdit.text(),
-            'runway_length': str(float(self.runwayEdit.text())/self.metr_fut),
-            'runway_elevation': str(float(self.evevEdit.text())/self.metr_fut),
+            'runway_length': str(float(self.runwayEdit.text()) / self.metr_fut),
+            'runway_elevation': str(float(self.evevEdit.text()) / self.metr_fut),
         }
         with self.db as tx1:
             tx1['my_data'].insert(add_dict)
@@ -147,13 +167,12 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.latEdit.setText(port.get('latitude', ''))
         self.longEdit.setText(port.get('longitude', ''))
         try:
-            self.runwayEdit.setText(str(round(float(port.get('runway_length', '0'))*self.metr_fut)))
-            self.evevEdit.setText(str(round(float(port.get('runway_elevation', '0'))*self.metr_fut)))
+            self.runwayEdit.setText(str(round(float(port.get('runway_length', '0')) * self.metr_fut)))
+            self.evevEdit.setText(str(round(float(port.get('runway_elevation', '0')) * self.metr_fut)))
         except ValueError as e:
             self.runwayEdit.setText('0')
             self.evevEdit.setText('0')
             logger.error(e)
-
 
     def filter_my_ports(self):
         text = self.icaoEdit.text()
@@ -187,6 +206,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableMyPorts.setItem(i, 6, QTableWidgetItem(port['latitude']))
             self.tableMyPorts.setItem(i, 7, QTableWidgetItem(port['longitude']))
             self.tableMyPorts.setItem(i, 8, QTableWidgetItem(port['runway_elevation']))
+            self.tableMyPorts.setItem(i, 9, QTableWidgetItem(str(port['id'])))
 
 
 def main():
