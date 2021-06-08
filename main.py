@@ -6,7 +6,6 @@ import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
-#TODO add edit record
 #TODO process add empty data in add port
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
@@ -42,6 +41,14 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.icaoEdit.setValidator(self.validator)
         self.fromEdit.setValidator(self.validator)
 
+    def show_message(self, text):
+        msgBox = QMessageBox()
+        msgBox.setText(text)
+        msgBox.exec_()
+        self.fill_my_ports()
+        self.fill_fields({})
+
+
     def write_edit(self):
         row = self.tableMyPorts.currentItem().row()
         edit_dict = {
@@ -56,15 +63,10 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             'runway_elevation': self.tableMyPorts.item(row, 8).text(),
             'id': int(self.tableMyPorts.item(row, 9).text()),
         }
-        print(edit_dict)
         try:
-            # self.db['my_data'].update().where(id=edit_dict['id']).values(edit_dict)
-        # update().where(table.c.id==7).values(name='foo')
             self.db['my_data'].update(edit_dict, ['id'])
-            # data = dict(id=10, title='I am a banana!')
-            # table.update(data, ['id'])
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     def del_record(self):
         row = self.tableMyPorts.currentItem().row()
@@ -77,13 +79,11 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
         returnValue = msgBox.exec()
         if returnValue == QMessageBox.Ok:
-            print('OK clicked')
             try:
-
                 self.db['my_data'].delete(id=cell)
                 self.fill_my_ports()
             except Exception as e:
-                print(e)
+                logger.error(e)
 
     def setMeter(self):
         self.metr_fut = 1
@@ -111,9 +111,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             if temp_port:
                 self.port_depart = temp_port
             else:
-                msgBox = QMessageBox()
-                msgBox.setText("Введи правильный порт")
-                msgBox.exec_()
+                self.show_message("Введи правильный порт")
 
         self.listWidget.clear()
         max_dist = float(self.distEdit.text())
@@ -130,9 +128,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         if len(rez) > 2:
             self.listWidget.addItems(rez)
         else:
-            msgBox = QMessageBox()
-            msgBox.setText("Нет портов в доступности!")
-            msgBox.exec_()
+            self.show_message("Нет портов в доступности!")
 
     def calc_coord(self):
         _translate = QtCore.QCoreApplication.translate
@@ -154,25 +150,26 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.longEdit.setText(coord_long)
 
     def add_my_port(self):
-        add_dict = {
-            'icao_code': self.icaoEdit.text(),
-            'name_eng': self.cityEdit.text(),
-            'city_eng': self.cityEdit.text(),
-            'country_eng': self.countryEdit.text(),
-            'iso_code': self.code_countryEdit.text(),
-            'latitude': self.latEdit.text(),
-            'longitude': self.longEdit.text(),
-            'runway_length': str(float(self.runwayEdit.text()) / self.metr_fut),
-            'runway_elevation': str(float(self.evevEdit.text()) / self.metr_fut),
-        }
-        with self.db as tx1:
-            tx1['my_data'].insert(add_dict)
+        try:
+            add_dict = {
+                'icao_code': self.icaoEdit.text(),
+                'name_eng': self.cityEdit.text(),
+                'city_eng': self.cityEdit.text(),
+                'country_eng': self.countryEdit.text(),
+                'iso_code': self.code_countryEdit.text(),
+                'latitude': self.latEdit.text(),
+                'longitude': self.longEdit.text(),
+                'runway_length': str(float(self.runwayEdit.text()) / self.metr_fut),
+                'runway_elevation': str(float(self.evevEdit.text()) / self.metr_fut),
+            }
+        except ValueError as e:
+            self.show_message('Заполни все поля!!!')
+        else:
+            with self.db as tx1:
+                tx1['my_data'].insert(add_dict)
 
-        msgBox = QMessageBox()
-        msgBox.setText("Порт добавлен!")
-        msgBox.exec_()
-        self.fill_my_ports()
-        self.fill_fields({})
+            self.show_message('Порт Добавлен')
+
 
     def find_appinfo(self):
         text = self.icaoEdit.text()
@@ -181,9 +178,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.fill_fields(port)
 
         else:
-            msgBox = QMessageBox()
-            msgBox.setText("Не найдено !!!")
-            msgBox.exec_()
+            self.show_message("Не найдено !!!")
+
 
     def fill_fields(self, port):
         self.nameEdit.setText(port.get('name_eng', ''))
@@ -214,10 +210,10 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableMyPorts.setItem(0, 6, QTableWidgetItem(port['latitude']))
             self.tableMyPorts.setItem(0, 7, QTableWidgetItem(port['longitude']))
             self.tableMyPorts.setItem(0, 8, QTableWidgetItem(port['runway_elevation']))
+            self.tableMyPorts.setItem(0, 9, QTableWidgetItem(str(port['id'])))
         else:
-            msgBox = QMessageBox()
-            msgBox.setText("Не найдено !!!")
-            msgBox.exec_()
+            self.show_message("Не найдено !!!")
+
 
     def fill_my_ports(self):
         self.ports = list(self.db['my_data'].all())
