@@ -33,13 +33,27 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.writeButton_2.clicked.connect(self.write_edit)
         self.ports = None
         self.port_depart = None
+        self.len = 0
         self.fill_my_ports()
+        self.set_aircrafts()
         self.metr_fut = 1  # 3.281
         self.radioButtonM.toggled.connect(self.setMeter)
         self.radioButtonF.toggled.connect(self.setFut)
         self.validator = Validator(self)
         self.icaoEdit.setValidator(self.validator)
         self.fromEdit.setValidator(self.validator)
+        self.comboBox.activated[str].connect(self.combo_handler)
+
+    def set_aircrafts(self):
+        self.crafts = list(self.db['aircrafts'].all())
+        self.comboBox.addItems([f'{el["name"]} - {el["len"]} ft.' for el in self.crafts])
+        self.len = float(self.crafts[0]["len"])
+
+
+    def combo_handler(self, text):
+        temp = text.split('-')[1][:-4]
+        print(temp)
+        self.len = float(text.split('-')[1][:-4])
 
     def show_message(self, text):
         msgBox = QMessageBox()
@@ -122,7 +136,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         for port in self.ports:
             dist = IcaoApp.calc_dist(self.port_depart['latitude'], port['latitude'], self.port_depart['longitude'],
                                      port['longitude'])
-            if max_dist > dist > 1:
+            if max_dist > dist > 1 and float(port['runway_length'])*3.281 >= self.len:
                 rez.append(
                     f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
         if len(rez) > 2:
