@@ -6,13 +6,25 @@ import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
-#TODO process add empty data in add port
+
+# TODO process add empty data in add port
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
 class Validator(QtGui.QValidator):
     def validate(self, string, pos):
-        return QtGui.QValidator.Acceptable, string.upper(), pos
+        translate_to_eng = {
+            'й': 'q', 'ц': 'w', 'у': 'e', 'к': 'r', 'е': 't', 'н': 'y', 'г': 'u', 'ш': 'i', 'щ': 'o', 'з': 'p',
+            'ф': 'a', 'ы': 's', 'в': 'd', 'а': 'f', 'п': 'g', 'р': 'h', 'о': 'j', 'л': 'k', 'д': 'l',
+            'я': 'z', 'ч': 'x', 'с': 'c', 'м': 'v', 'и': 'b', 'т': 'n', 'ь': 'm',
+        }
+
+        def translate(ch):
+            return translate_to_eng[ch] if ch in translate_to_eng else ch
+
+        new_string = ''.join([translate(ch) for ch in string])
+
+        return QtGui.QValidator.Acceptable, new_string.upper(), pos
 
 
 class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
@@ -49,7 +61,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.comboBox.addItems([f'{el["name"]} - {el["len"]} ft.' for el in self.crafts])
         self.len = float(self.crafts[0]["len"])
 
-
     def combo_handler(self, text):
         temp = text.split('-')[1][:-4]
         print(temp)
@@ -62,7 +73,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.fill_my_ports()
         self.fill_fields({})
 
-
     def write_edit(self):
         row = self.tableMyPorts.currentItem().row()
         edit_dict = {
@@ -71,9 +81,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             'city_eng': self.tableMyPorts.item(row, 2).text(),
             'country_eng': self.tableMyPorts.item(row, 3).text(),
             'iso_code': self.tableMyPorts.item(row, 4).text(),
-            'latitude': self.tableMyPorts.item(row, 5).text(),
-            'longitude': self.tableMyPorts.item(row, 6).text(),
-            'runway_length': self.tableMyPorts.item(row, 7).text(),
+            'runway_length': self.tableMyPorts.item(row, 5).text(),
+            'latitude': self.tableMyPorts.item(row, 6).text(),
+            'longitude': self.tableMyPorts.item(row, 7).text(),
             'runway_elevation': self.tableMyPorts.item(row, 8).text(),
             'id': int(self.tableMyPorts.item(row, 9).text()),
         }
@@ -136,7 +146,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         for port in self.ports:
             dist = IcaoApp.calc_dist(self.port_depart['latitude'], port['latitude'], self.port_depart['longitude'],
                                      port['longitude'])
-            if max_dist > dist > 1 and float(port['runway_length'])*3.281 >= self.len:
+            if max_dist > dist > 1 and float(port['runway_length']) * 3.281 >= self.len:
                 rez.append(
                     f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
         if len(rez) > 2:
@@ -184,7 +194,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
             self.show_message('Порт Добавлен')
 
-
     def find_appinfo(self):
         text = self.icaoEdit.text()
         port = self.db['icao_data'].find_one(icao_code=text)
@@ -193,7 +202,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
         else:
             self.show_message("Не найдено !!!")
-
 
     def fill_fields(self, port):
         self.nameEdit.setText(port.get('name_eng', ''))
@@ -227,7 +235,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableMyPorts.setItem(0, 9, QTableWidgetItem(str(port['id'])))
         else:
             self.show_message("Не найдено !!!")
-
 
     def fill_my_ports(self):
         self.ports = list(self.db['my_data'].all())
