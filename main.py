@@ -6,12 +6,14 @@ import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
+from utils import data_from_skyvector
 
 # TODO process add empty data in add port
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
 class Validator(QtGui.QValidator):
+
     def validate(self, string, pos):
         translate_to_eng = {
             'й': 'q', 'ц': 'w', 'у': 'e', 'к': 'r', 'е': 't', 'н': 'y', 'г': 'u', 'ш': 'i', 'щ': 'o', 'з': 'p',
@@ -24,7 +26,7 @@ class Validator(QtGui.QValidator):
 
         new_string = ''.join([translate(ch) for ch in string])
 
-        return QtGui.QValidator.Acceptable, new_string.upper(), pos
+        return QtGui.QValidator.Acceptable, new_string.upper(), pos  # (state, string, index)
 
 
 class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
@@ -35,6 +37,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         self.db = dataset.connect('sqlite:///data/icao_base.db')
         self.findButton.clicked.connect(self.filter_my_ports)
+        self.findButtonSky.clicked.connect(self.find_skyvector)
         self.findButtonApinfo.clicked.connect(self.find_appinfo)
         self.showAllButton.clicked.connect(self.fill_my_ports)
         self.addButton.clicked.connect(self.add_my_port)
@@ -157,21 +160,24 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def calc_coord(self):
         _translate = QtCore.QCoreApplication.translate
 
-        def calc(coord):
-            if coord[-1] == 'N' or coord[-1] == 'E':
-                return float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
-            else:
-                rez = float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
-                return -rez
-
         text = self.coordEdit.text()
         coord_list = text.split(' ')
         temp1 = (coord_list[0][:-1], coord_list[1][:-1], coord_list[2][:-1], coord_list[3])
-        coord_lat = str(calc(temp1))
+        coord_lat = str(self.calc(temp1))
         temp2 = (coord_list[4][:-1], coord_list[5][:-1], coord_list[6][:-1], coord_list[7])
-        coord_long = str(calc(temp2))
+        coord_long = str(self.calc(temp2))
         self.latEdit.setText(coord_lat)
         self.longEdit.setText(coord_long)
+
+    def calc(self, coord: tuple):
+        print(coord)
+        if coord[-1] == 'N' or coord[-1] == 'E':
+            return float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
+        else:
+            rez = float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
+            return -rez
+
+        return calc
 
     def add_my_port(self):
         try:
@@ -197,6 +203,23 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def find_appinfo(self):
         text = self.icaoEdit.text()
         port = self.db['icao_data'].find_one(icao_code=text)
+        if port:
+            self.fill_fields(port)
+
+        else:
+            self.show_message("Не найдено !!!")
+
+    def find_skyvector(self):
+        text = self.icaoEdit.text()
+        port = data_from_skyvector(text)
+        coord_list = port.get('coordinats').split()
+        temp1 = (coord_list[0][:-1], coord_list[1][:-1], coord_list[2][:-1], coord_list[3])
+        coord_lat = str(self.calc(temp1))
+        temp2 = (coord_list[4][:-1], coord_list[5][:-1], coord_list[6][:-1], coord_list[7])
+        coord_long = str(self.calc(temp2))
+        port['latitude'] = coord_lat
+        port['longitude'] = coord_long
+        print(coord_list)
         if port:
             self.fill_fields(port)
 

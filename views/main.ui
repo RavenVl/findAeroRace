@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -355,12 +355,12 @@
        <rect>
         <x>170</x>
         <y>10</y>
-        <width>91</width>
+        <width>61</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>Искать в базе</string>
+       <string>🔍 в базе</string>
       </property>
      </widget>
      <widget class="QPushButton" name="addButton">
@@ -379,9 +379,9 @@
      <widget class="QTableWidget" name="tableMyPorts">
       <property name="geometry">
        <rect>
-        <x>360</x>
+        <x>370</x>
         <y>10</y>
-        <width>691</width>
+        <width>681</width>
         <height>521</height>
        </rect>
       </property>
@@ -439,14 +439,14 @@
      <widget class="QPushButton" name="findButtonApinfo">
       <property name="geometry">
        <rect>
-        <x>260</x>
+        <x>230</x>
         <y>10</y>
-        <width>91</width>
+        <width>61</width>
         <height>23</height>
        </rect>
       </property>
       <property name="text">
-       <string>Искать apinfo</string>
+       <string>🔍 apinfo</string>
       </property>
      </widget>
      <widget class="QPushButton" name="showAllButton">
@@ -564,6 +564,19 @@
       </property>
       <property name="text">
        <string>Записать</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="findButtonSky">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>10</y>
+        <width>71</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>🔍 skyvector</string>
       </property>
      </widget>
     </widget>
