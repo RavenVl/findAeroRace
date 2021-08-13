@@ -1,15 +1,16 @@
 import sys  # sys нужен для передачи argv в QApplication
 import dataset
 from PyQt5 import QtWidgets, QtCore, QtGui
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
+
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication
 import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
 from utils import data_from_skyvector
 
-# TODO process add empty data in add port
-# TODO show moda window when url request
+
+# TODO show modal window when url request
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
@@ -171,14 +172,12 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.longEdit.setText(coord_long)
 
     def calc(self, coord: tuple):
-        print(coord)
         if coord[-1] == 'N' or coord[-1] == 'E':
             return float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
         else:
             rez = float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
             return -rez
 
-        return calc
 
     def add_my_port(self):
         try:
@@ -212,7 +211,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def find_skyvector(self):
         text = self.icaoEdit.text()
+        QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         port = data_from_skyvector(text)
+        QApplication.restoreOverrideCursor()
         if port.get('err', 0):
             self.show_message("Не найдено !!!")
             return
@@ -223,6 +224,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         coord_long = str(self.calc(temp2))
         port['latitude'] = coord_lat
         port['longitude'] = coord_long
+        self.fill_fields(port)
 
     def fill_fields(self, port):
         self.nameEdit.setText(port.get('name_eng', ''))
