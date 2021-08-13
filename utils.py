@@ -55,15 +55,24 @@ def data_from_skyvector(icao_kod):
     # OrderedDict([('id', 5676), ('icao_code', 'URMO'), ('name_eng', 'Beslan'), ('city_eng', 'Vladikavkaz'),
     #              ('country_eng', 'Russian Federation'), ('iso_code', 'RU'), ('latitude', '43.205114'),
     #              ('longitude', '44.606642'), ('runway_length', '3000'), ('runway_elevation', '510')])
-    rez ={'icao_code':icao_kod}
+    rez ={'icao_code': icao_kod}
     url = f'https://skyvector.com/airport/{icao_kod}'
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except ConnectionError as e:
+        rez['err'] = e.strerror
+        return rez
     soup = BeautifulSoup(response.text, 'html.parser')
-    name = soup.find('div', class_='titlebgrighta').text
+    try:
+        name = soup.find('div', class_='titlebgrighta').text
+    except AttributeError as e:
+        rez['err'] = e
+        return rez
     countries = soup.find_all('a')
     for el in countries:
         if 'Airports in' in el.text:
             rez['country_eng'] = el.text.split()[-1]
+            break
     rez['name_eng'] = name
     rez['city_eng'] = name
 
@@ -72,11 +81,20 @@ def data_from_skyvector(icao_kod):
         if el.find(string='Dimensions:'):
             rez['runway_length'] = int(el.find('td').text.split()[5])
         if el.find(string='Elevation:'):
-            rez['runway_elevation'] = int(el.find('td').text)/3.281
+            rez['runway_elevation'] = float(el.find('td').text)/3.281
     url = f'https://opennav.com/airport/{icao_kod}'
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except ConnectionError as e:
+        rez['err'] = e
+        return rez
     soup = BeautifulSoup(response.text, 'html.parser')
-    country_codes = soup.find_all('td', class_='text-darkgray')
+    try:
+        country_codes = soup.find_all('td', class_='text-darkgray')
+    except AttributeError as e:
+        rez['err'] = e
+        return rez
+
     rez['iso_code'] = country_codes[1].text
     rez['coordinats'] = f'{country_codes[-2].text} {country_codes[-1].text}'
     return rez
@@ -84,7 +102,7 @@ def data_from_skyvector(icao_kod):
 
 if __name__ == '__main__':
     # community_ikao()
-    data_from_skyvector('URMO')
+    print(data_from_skyvector('URMO'))
     pass
 
 

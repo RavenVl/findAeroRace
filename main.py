@@ -9,6 +9,7 @@ from loguru import logger
 from utils import data_from_skyvector
 
 # TODO process add empty data in add port
+# TODO show moda window when url request
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
@@ -212,6 +213,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def find_skyvector(self):
         text = self.icaoEdit.text()
         port = data_from_skyvector(text)
+        if port.get('err', 0):
+            self.show_message("Не найдено !!!")
+            return
         coord_list = port.get('coordinats').split()
         temp1 = (coord_list[0][:-1], coord_list[1][:-1], coord_list[2][:-1], coord_list[3])
         coord_lat = str(self.calc(temp1))
@@ -219,12 +223,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         coord_long = str(self.calc(temp2))
         port['latitude'] = coord_lat
         port['longitude'] = coord_long
-        print(coord_list)
-        if port:
-            self.fill_fields(port)
-
-        else:
-            self.show_message("Не найдено !!!")
 
     def fill_fields(self, port):
         self.nameEdit.setText(port.get('name_eng', ''))
