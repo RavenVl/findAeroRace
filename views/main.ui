@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -136,6 +136,29 @@
         <width>191</width>
         <height>22</height>
        </rect>
+      </property>
+     </widget>
+     <widget class="QWidget" name="map_widget" native="true">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>20</y>
+        <width>671</width>
+        <height>571</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="mapButton">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>20</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Show map</string>
       </property>
      </widget>
     </widget>

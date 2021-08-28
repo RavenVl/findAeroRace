@@ -49,6 +49,12 @@ class Ui_MainWindow(object):
         self.comboBox = QtWidgets.QComboBox(self.tab)
         self.comboBox.setGeometry(QtCore.QRect(80, 80, 191, 22))
         self.comboBox.setObjectName("comboBox")
+        self.map_widget = QtWidgets.QWidget(self.tab)
+        self.map_widget.setGeometry(QtCore.QRect(370, 20, 671, 571))
+        self.map_widget.setObjectName("map_widget")
+        self.mapButton = QtWidgets.QPushButton(self.tab)
+        self.mapButton.setGeometry(QtCore.QRect(280, 20, 75, 23))
+        self.mapButton.setObjectName("mapButton")
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
@@ -182,7 +188,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -194,6 +200,7 @@ class Ui_MainWindow(object):
         self.distEdit.setText(_translate("MainWindow", "100"))
         self.findFlyButton.setText(_translate("MainWindow", "Find"))
         self.label_13.setText(_translate("MainWindow", "Aircrafts"))
+        self.mapButton.setText(_translate("MainWindow", "Show map"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Find route"))
         self.label.setText(_translate("MainWindow", "ICAO"))
         self.label_2.setText(_translate("MainWindow", "Название"))

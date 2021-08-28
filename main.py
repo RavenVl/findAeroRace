@@ -1,8 +1,10 @@
 import sys  # sys нужен для передачи argv в QApplication
 import dataset
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QUrl
 
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication
+from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView, QWebEnginePage as QWebPage
 import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
@@ -60,6 +62,14 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.icaoEdit.setValidator(self.validator)
         self.fromEdit.setValidator(self.validator)
         self.comboBox.activated[str].connect(self.combo_handler)
+    #     add map view
+        self.web = QWebView(self.tab)
+        self.init_map()
+
+    def init_map(self):
+        self.web.setGeometry(QtCore.QRect(400, 10, 651, 591))
+        self.web.load(QUrl("http://ya.ru"))
+        self.web.show()
 
     def set_aircrafts(self):
         self.crafts = list(self.db['aircrafts'].all())
