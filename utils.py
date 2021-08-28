@@ -82,6 +82,7 @@ def data_from_skyvector(icao_kod):
             rez['runway_length'] = int(el.find('td').text.split()[5])
         if el.find(string='Elevation:'):
             rez['runway_elevation'] = float(el.find('td').text)/3.281
+
     url = f'https://opennav.com/airport/{icao_kod}'
     try:
         response = requests.get(url)
@@ -94,9 +95,12 @@ def data_from_skyvector(icao_kod):
     except AttributeError as e:
         rez['err'] = e
         return rez
-
-    rez['iso_code'] = country_codes[1].text
-    rez['coordinats'] = f'{country_codes[-2].text} {country_codes[-1].text}'
+    try:
+        rez['iso_code'] = country_codes[1].text
+        rez['coordinats'] = f'{country_codes[-2].text} {country_codes[-1].text}'
+    except IndexError as e:
+        rez['err'] = e
+        return rez
     return rez
 
 
