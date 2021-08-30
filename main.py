@@ -9,7 +9,7 @@ import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
-from utils import data_from_skyvector
+from utils.utils import data_from_skyvector
 
 
 # TODO show modal window when url request
