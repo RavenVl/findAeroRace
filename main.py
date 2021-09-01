@@ -69,7 +69,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def show_port_map(self):
         self.find_port_depart()
-        create_map(curent_position=(float(self.port_depart['latitude']), float(self.port_depart['longitude'])))
+        create_map(port_depart=self.port_depart)
         self.web.load(QUrl("file:///map.html"))
         self.web.show()
 
@@ -152,7 +152,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def find_rand_port(self):
         self.port_depart = random.choice(self.ports)
         self.fromEdit.setText(self.port_depart['icao_code'])
-        create_map(curent_position=(float(self.port_depart['latitude']), float(self.port_depart['longitude'])))
+        create_map(port_depart=self.port_depart)
         self.web.load(QUrl("file:///map.html"))
         self.web.show()
 
@@ -162,7 +162,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
         self.listWidget.clear()
         max_dist = float(self.distEdit.text())
-
+        rez_map = []
         rez = [
             f'FROM {self.port_depart["icao_code"]}  len runway - {float(self.port_depart["runway_length"]) * 3.281} ft',
             "TO:"]
@@ -172,8 +172,12 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             if max_dist > dist > 1 and float(port['runway_length']) * 3.281 >= self.len:
                 rez.append(
                     f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
+                rez_map.append(port)
         if len(rez) > 2:
             self.listWidget.addItems(rez)
+            create_map(port_depart=self.port_depart, arr_legs=rez_map)
+            self.web.load(QUrl("file:///map.html"))
+            self.web.show()
         else:
             self.show_message("Нет портов в доступности!")
 
