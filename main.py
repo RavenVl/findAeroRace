@@ -160,16 +160,11 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
 
     def find_flights(self):
-        if self.port_depart is None:
-            temp_port = self.db['my_data'].find_one(icao_code=self.fromEdit.text())
-            if temp_port:
-                self.port_depart = temp_port
-            else:
-                self.show_message("Введи правильный порт")
+        self.find_port_depart()
 
         self.listWidget.clear()
         max_dist = float(self.distEdit.text())
-
+        rez_map = []
         rez = [
             f'FROM {self.port_depart["icao_code"]}  len runway - {float(self.port_depart["runway_length"]) * 3.281} ft',
             "TO:"]
