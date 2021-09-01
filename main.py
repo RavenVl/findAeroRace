@@ -72,6 +72,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         create_map(port_depart=self.port_depart)
         self.web.load(QUrl("file:///map.html"))
         self.web.show()
+        self.listWidget.clear()
 
 
     def init_map(self):
@@ -155,6 +156,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         create_map(port_depart=self.port_depart)
         self.web.load(QUrl("file:///map.html"))
         self.web.show()
+        self.listWidget.clear()
 
 
     def find_flights(self):
@@ -182,7 +184,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.show_message("Нет портов в доступности!")
 
     def find_port_depart(self):
-        if self.port_depart is None:
+        if len(self.fromEdit.text()) > 0:
             temp_port = self.db['my_data'].find_one(icao_code=self.fromEdit.text())
             if temp_port:
                 self.port_depart = temp_port

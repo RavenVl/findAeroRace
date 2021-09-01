@@ -8,7 +8,7 @@
     function initialize() {
         var map = new google.maps.Map(document.getElementById("map_canvas"), {
             zoom: 4,
-            center: new google.maps.LatLng(-43.615278, -71.806944)
+            center: new google.maps.LatLng(43.205114, 44.606642)
         });
 
         var marker_icon_FF0000 = {
@@ -17,9 +17,9 @@
         };
 
         new google.maps.Marker({
-            position: new google.maps.LatLng(-43.6153, -71.8069),
-            title: "Alto Palena",
-            label: "SCAP",
+            position: new google.maps.LatLng(43.2051, 44.6066),
+            title: "Vladikavkaz",
+            label: "URMO",
             icon: marker_icon_FF0000,
             map: map
         });
@@ -30,25 +30,33 @@
         };
 
         new google.maps.Marker({
-            position: new google.maps.LatLng(-41.4389, -73.0940),
-            title: "Puerto Montt",
-            label: "SCTE",
+            position: new google.maps.LatLng(43.5129, 43.6366),
+            title: "Nalchik",
+            label: "URMN",
             icon: marker_icon_6495ED,
             map: map
         });
 
         new google.maps.Marker({
-            position: new google.maps.LatLng(-45.9161, -71.6895),
-            title: "Balmaceda",
-            label: "SCBA",
+            position: new google.maps.LatLng(43.3236, 45.0122),
+            title: "Magas",
+            label: "URMS",
             icon: marker_icon_6495ED,
             map: map
         });
 
         new google.maps.Marker({
-            position: new google.maps.LatLng(-40.6112, -73.0610),
-            title: "Osorno",
-            label: "SCJO",
+            position: new google.maps.LatLng(41.6692, 44.9547),
+            title: "Tbilisi",
+            label: "UGTB",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(43.0536, 42.7490),
+            title: "Mestia",
+            label: "UGMS",
             icon: marker_icon_6495ED,
             map: map
         });
