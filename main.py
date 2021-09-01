@@ -1,14 +1,16 @@
 import sys  # sys нужен для передачи argv в QApplication
 import dataset
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import QUrl
 
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication
+from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView, QWebEnginePage as QWebPage
 import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
 from utils.utils import data_from_skyvector
-
+from utils.map import create_map
 
 # TODO show modal window when url request
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
@@ -43,6 +45,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.findButtonApinfo.clicked.connect(self.find_appinfo)
         self.showAllButton.clicked.connect(self.fill_my_ports)
         self.addButton.clicked.connect(self.add_my_port)
+        self.mapButton.clicked.connect(self.show_port_map)
         self.coordButton.clicked.connect(self.calc_coord)
         self.randButton.clicked.connect(self.find_rand_port)
         self.findFlyButton.clicked.connect(self.find_flights)
@@ -60,6 +63,23 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.icaoEdit.setValidator(self.validator)
         self.fromEdit.setValidator(self.validator)
         self.comboBox.activated[str].connect(self.combo_handler)
+    #     add map view
+        self.web = QWebView(self.tab)
+        self.init_map()
+
+    def show_port_map(self):
+        self.find_port_depart()
+        create_map(port_depart=self.port_depart)
+        self.web.load(QUrl("file:///map.html"))
+        self.web.show()
+        self.listWidget.clear()
+
+
+    def init_map(self):
+        self.web.setGeometry(QtCore.QRect(400, 10, 651, 591))
+        create_map()
+        self.web.load(QUrl("file:///map.html"))
+        self.web.show()
 
     def set_aircrafts(self):
         self.crafts = list(self.db['aircrafts'].all())
@@ -133,6 +153,11 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def find_rand_port(self):
         self.port_depart = random.choice(self.ports)
         self.fromEdit.setText(self.port_depart['icao_code'])
+        create_map(port_depart=self.port_depart)
+        self.web.load(QUrl("file:///map.html"))
+        self.web.show()
+        self.listWidget.clear()
+
 
     def find_flights(self):
         if self.port_depart is None:
@@ -154,10 +179,22 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             if max_dist > dist > 1 and float(port['runway_length']) * 3.281 >= self.len:
                 rez.append(
                     f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
+                rez_map.append(port)
         if len(rez) > 2:
             self.listWidget.addItems(rez)
+            create_map(port_depart=self.port_depart, arr_legs=rez_map)
+            self.web.load(QUrl("file:///map.html"))
+            self.web.show()
         else:
             self.show_message("Нет портов в доступности!")
+
+    def find_port_depart(self):
+        if len(self.fromEdit.text()) > 0:
+            temp_port = self.db['my_data'].find_one(icao_code=self.fromEdit.text())
+            if temp_port:
+                self.port_depart = temp_port
+            else:
+                self.show_message("Введи правильный порт")
 
     def calc_coord(self):
         _translate = QtCore.QCoreApplication.translate
