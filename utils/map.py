@@ -3,7 +3,6 @@ from settings import SECRET_KEY
 
 def create_map(port_depart = None, arr_legs = None):
     """Create Google map from database"""
-    # (float(self.port_depart['latitude']), float(self.port_depart['longitude']))
     # Create the map plotter:
     apikey = SECRET_KEY
     if port_depart is None:
