@@ -172,6 +172,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 rez.append(
                     f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
                 rez_map.append(port)
+        #         sort to distance
+        rez = rez[:2] + sorted(rez[2:], key=lambda el: float(el.split()[-2]))
+
         if len(rez) > 2:
             self.listWidget.addItems(rez)
             if max_dist <= 100:
@@ -206,7 +209,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.latEdit.setText(coord_lat)
         self.longEdit.setText(coord_long)
 
-    def calc(self, coord: tuple):
+    @staticmethod
+    def calc(coord: tuple):
         if coord[-1] == 'N' or coord[-1] == 'E':
             return float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
         else:
