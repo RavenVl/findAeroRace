@@ -62,7 +62,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.icaoEdit.setValidator(self.validator)
         self.fromEdit.setValidator(self.validator)
         self.comboBox.activated[str].connect(self.combo_handler)
-    #     add map view
+        #     add map view
         self.web = QWebView(self.tab)
         self.init_map()
 
@@ -72,7 +72,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.web.load(QUrl("file:///map.html"))
         self.web.show()
         self.listWidget.clear()
-
 
     def init_map(self):
         self.web.setGeometry(QtCore.QRect(400, 10, 651, 591))
@@ -157,7 +156,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.web.show()
         self.listWidget.clear()
 
-
     def find_flights(self):
         self.find_port_depart()
 
@@ -176,7 +174,13 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 rez_map.append(port)
         if len(rez) > 2:
             self.listWidget.addItems(rez)
-            create_map(port_depart=self.port_depart, arr_legs=rez_map)
+            if max_dist <= 100:
+                size_map = 6
+            elif max_dist <= 500:
+                size_map = 5
+            elif max_dist <= 1000:
+                size_map = 4
+            create_map(port_depart=self.port_depart, arr_legs=rez_map, size=size_map)
             self.web.load(QUrl("file:///map.html"))
             self.web.show()
         else:
@@ -208,7 +212,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         else:
             rez = float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
             return -rez
-
 
     def add_my_port(self):
         try:

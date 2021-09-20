@@ -1,7 +1,7 @@
 import gmplot
 from settings import SECRET_KEY
 
-def create_map(port_depart = None, arr_legs = None):
+def create_map(port_depart = None, arr_legs = None, size=6):
     """Create Google map from database"""
     # Create the map plotter:
     apikey = SECRET_KEY
@@ -10,7 +10,7 @@ def create_map(port_depart = None, arr_legs = None):
     else:
         lat_dep = float(port_depart['latitude'])
         long_dep = float(port_depart['longitude'])
-        gmap = gmplot.GoogleMapPlotter(lat_dep, long_dep, 4, apikey=apikey)
+        gmap = gmplot.GoogleMapPlotter(lat_dep, long_dep, size, apikey=apikey)
         gmap.marker(lat_dep, long_dep, color='red', title=port_depart['name_eng'], precision=4, label=port_depart['icao_code'])
 
     if arr_legs is not None:
