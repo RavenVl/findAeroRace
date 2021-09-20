@@ -78,10 +78,16 @@ def data_from_skyvector(icao_kod):
 
     arp_data = soup.find_all('tr')
     for el in arp_data:
-        if el.find(string='Dimensions:'):
-            rez['runway_length'] = int(el.find('td').text.split()[5])
-        if el.find(string='Elevation:'):
-            rez['runway_elevation'] = float(el.find('td').text)/3.281
+        try:
+            if el.find(string='Dimensions:'):
+                rez['runway_length'] = float(el.find('td').text.split()[0])/3.281
+        except IndexError as e:
+            rez['runway_length'] = 0
+        try:
+            if el.find(string='Elevation:'):
+                rez['runway_elevation'] = float(el.find('td').text)/3.281
+        except IndexError as e:
+            rez['runway_elevation'] = 0
 
     url = f'https://opennav.com/airport/{icao_kod}'
     try:

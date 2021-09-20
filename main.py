@@ -12,9 +12,6 @@ from loguru import logger
 from utils.utils import data_from_skyvector
 from utils.map import create_map
 
-# TODO clear all inputs when find in base
-# TODO CNC3 - fatal errors
-# TODO SBBZ, SDTK -not lenght runway in skyvector
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
