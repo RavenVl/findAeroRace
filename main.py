@@ -12,7 +12,6 @@ from loguru import logger
 from utils.utils import data_from_skyvector
 from utils.map import create_map
 
-# TODO show modal window when url request
 # TODO clear all inputs when find in base
 # TODO CNC3 - fatal errors
 # TODO SBBZ, SDTK -not lenght runway in skyvector
@@ -291,6 +290,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableMyPorts.setItem(0, 7, QTableWidgetItem(port['longitude']))
             self.tableMyPorts.setItem(0, 8, QTableWidgetItem(port['runway_elevation']))
             self.tableMyPorts.setItem(0, 9, QTableWidgetItem(str(port['id'])))
+            self.fill_fields(port)
         else:
             self.show_message("Не найдено !!!")
 
