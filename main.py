@@ -173,7 +173,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                     f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
                 rez_map.append(port)
         #         sort to distance
-        rez = rez[:2] + sorted(rez[2:], key=lambda el: float(el.split()[-2]))
+        rez = rez[:2] + sorted(rez[2:], key=lambda el: float(el.split()[3]))
 
         if len(rez) > 2:
             self.listWidget.addItems(rez)
