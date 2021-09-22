@@ -6,38 +6,31 @@ import requests
 from bs4 import BeautifulSoup, SoupStrainer
 
 def community_ikao():
-    DIR_COMMUNYTI = path.join('c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\community\\')
-    print(DIR_COMMUNYTI)
+    # DIR_COMMUNYTI = path.join('c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\community\\')
+    DIR_COMMUNYTI = path.join('c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\Official\\Steam\\')
     file_list = listdir(DIR_COMMUNYTI)
-    db = dataset.connect('sqlite:///data/icao_base.db')
-    table_icao = db['icao_data']
+    db = dataset.connect('sqlite:///../data/icao_base.db')
+    table_my = db['my_data']
     temp = []
     temp_del = set()
     for name in file_list:
-        reg_exp = r"[a-zA-Z]{4}"
+        reg_exp = r"-([a-zA-Z]{4})-"
         ikao_kod = re.findall(reg_exp, name)
         for test_name in ikao_kod:
-            port = table_icao.find_one(icao_code=test_name.upper())
-            print(port)
+            port = db['ikao_data'].find_one(icao_code=test_name.upper())
             if port:
-                with db as tx1:
-                    tx1['my_data'].insert(dict(icao_code=port['icao_code'], name_eng=port['name_eng'], city_eng=port['city_eng'],
-                                               country_eng=port['country_eng'],
-                                                 iso_code=port['iso_code'], latitude=port['latitude'], longitude=port['longitude'],
-                                                 runway_length=port['runway_length'],
-                                                 runway_elevation=port['runway_elevation']))
+                port = table_my.find_one(icao_code=test_name.upper())
+                if not port:
+                    temp.append(name)
+            else:
+                port_comm = data_from_skyvector(test_name)
+                if port_comm.get('err', 0) == 0:
+                    port = table_my.find_one(icao_code=test_name.upper())
+                    if not port:
+                        temp.append(name)
 
+    print(temp)
 
-    print(len(temp))
-    # for name in ikao:
-    #     port = table_icao.find_one(icao_code=name.upper())
-    #
-    #     if port:
-    #         # with db as tx1:
-    #         #     tx1['my_data'].insert(port)
-    #         pass
-    #     else:
-    #         print(name)
 
 def convert_csv():
 
@@ -51,6 +44,29 @@ def convert_csv():
                               runway_elevation=row[16]))
 
 
+def data_from_opennav(icao_kod, rez):
+    url = f'https://opennav.com/airport/{icao_kod}'
+    try:
+        response = requests.get(url)
+    except ConnectionError as e:
+        rez['err'] = e
+        return rez
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    try:
+        country_codes = soup.find_all('td', class_='text-darkgray')
+    except AttributeError as e:
+        rez['err'] = e
+        return rez
+
+    try:
+        rez['iso_code'] = country_codes[1].text
+        rez['coordinats'] = f'{country_codes[-2].text} {country_codes[-1].text}'
+    except IndexError as e:
+        rez['err'] = e
+
+    return rez
+
 def data_from_skyvector(icao_kod):
     # OrderedDict([('id', 5676), ('icao_code', 'URMO'), ('name_eng', 'Beslan'), ('city_eng', 'Vladikavkaz'),
     #              ('country_eng', 'Russian Federation'), ('iso_code', 'RU'), ('latitude', '43.205114'),
@@ -62,12 +78,14 @@ def data_from_skyvector(icao_kod):
     except ConnectionError as e:
         rez['err'] = e.strerror
         return rez
+
     soup = BeautifulSoup(response.text, 'html.parser')
     try:
         name = soup.find('div', class_='titlebgrighta').text
     except AttributeError as e:
         rez['err'] = e
         return rez
+
     countries = soup.find_all('a')
     for el in countries:
         if 'Airports in' in el.text:
@@ -88,31 +106,17 @@ def data_from_skyvector(icao_kod):
                 rez['runway_elevation'] = float(el.find('td').text)/3.281
         except IndexError as e:
             rez['runway_elevation'] = 0
-
-    url = f'https://opennav.com/airport/{icao_kod}'
-    try:
-        response = requests.get(url)
-    except ConnectionError as e:
-        rez['err'] = e
-        return rez
-    soup = BeautifulSoup(response.text, 'html.parser')
-    try:
-        country_codes = soup.find_all('td', class_='text-darkgray')
-    except AttributeError as e:
-        rez['err'] = e
-        return rez
-    try:
-        rez['iso_code'] = country_codes[1].text
-        rez['coordinats'] = f'{country_codes[-2].text} {country_codes[-1].text}'
-    except IndexError as e:
-        rez['err'] = e
-        return rez
+    rez = data_from_opennav(icao_kod, rez)
     return rez
+
+    # receive country code from opennav
+
+
 
 
 if __name__ == '__main__':
     # community_ikao()
-    print(data_from_skyvector('URMO'))
-    pass
+    # print(data_from_skyvector('URMO'))
+    community_ikao()
 
 
