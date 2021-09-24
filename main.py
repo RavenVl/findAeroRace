@@ -42,6 +42,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.findButton.clicked.connect(self.filter_my_ports)
         self.findButtonSky.clicked.connect(self.find_skyvector)
         self.pushAddPath.clicked.connect(self.add_patch)
+        self.pushDelPatch.clicked.connect(self.rem_patch)
         self.findButtonApinfo.clicked.connect(self.find_appinfo)
         self.showAllButton.clicked.connect(self.fill_my_ports)
         self.addButton.clicked.connect(self.add_my_port)
@@ -66,7 +67,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         #     add map view
         self.web = QWebView(self.tab)
         self.init_map()
+        self.paths = []
         self.fill_path_find()
+
 
     def show_port_map(self):
         self.find_port_depart()
@@ -316,21 +319,42 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableMyPorts.setItem(i, 9, QTableWidgetItem(str(port['id'])))
 
     def fill_path_find(self):
-        paths = get_param_from_db(self.db, 'path_to_community')
-        self.tableWidget.setRowCount(len(paths))
-        for i, path in enumerate(paths):
+        self.paths = get_param_from_db(self.db, 'path_to_community')
+        self.tableWidget.setRowCount(len(self.paths))
+        for i, path in enumerate(self.paths):
             self.tableWidget.setItem(i, 0, QTableWidgetItem(path))
 
     def add_patch(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
-                                                  "All Files (*);;Python Files (*.py)", options=options)
+        options |= QFileDialog.ShowDirsOnly
+        options |= QFileDialog.DontResolveSymlinks
+        # fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+        #                                           "All Files (*);;Python Files (*.py)", options=options)
+        fileName = QFileDialog.getExistingDirectory(self, 'Select a directory', "", options=options)
         if fileName:
-            paths = get_param_from_db(self.db, 'path_to_community')
-            paths.append(fileName)
-            set_param_to_db(self.db, 'path_to_community', paths)
+            self.paths.append(fileName)
+            set_param_to_db(self.db, 'path_to_community', self.paths)
             self.fill_path_find()
+
+
+    def rem_patch(self):
+        row = self.tableWidget.currentItem().text()
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setText(f"Реально хотите удалить ?")
+        msgBox.setWindowTitle("Удаление")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        returnValue = msgBox.exec()
+        if returnValue == QMessageBox.Ok:
+            try:
+                self.paths.remove(row)
+                set_param_to_db(self.db, 'path_to_community', self.paths)
+                self.fill_path_find()
+            except Exception as e:
+                logger.error(e)
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
