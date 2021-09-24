@@ -3,13 +3,13 @@ import dataset
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QUrl
 
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication, QFileDialog
 from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView, QWebEnginePage as QWebPage
 import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
-from utils.utils import data_from_skyvector
+from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db
 from utils.map import create_map
 
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
@@ -41,6 +41,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.db = dataset.connect('sqlite:///data/icao_base.db')
         self.findButton.clicked.connect(self.filter_my_ports)
         self.findButtonSky.clicked.connect(self.find_skyvector)
+        self.pushAddPath.clicked.connect(self.add_patch)
         self.findButtonApinfo.clicked.connect(self.find_appinfo)
         self.showAllButton.clicked.connect(self.fill_my_ports)
         self.addButton.clicked.connect(self.add_my_port)
@@ -65,6 +66,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         #     add map view
         self.web = QWebView(self.tab)
         self.init_map()
+        self.fill_path_find()
 
     def show_port_map(self):
         self.find_port_depart()
@@ -313,6 +315,22 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableMyPorts.setItem(i, 8, QTableWidgetItem(port['runway_elevation']))
             self.tableMyPorts.setItem(i, 9, QTableWidgetItem(str(port['id'])))
 
+    def fill_path_find(self):
+        paths = get_param_from_db(self.db, 'path_to_community')
+        self.tableWidget.setRowCount(len(paths))
+        for i, path in enumerate(paths):
+            self.tableWidget.setItem(i, 0, QTableWidgetItem(path))
+
+    def add_patch(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+                                                  "All Files (*);;Python Files (*.py)", options=options)
+        if fileName:
+            paths = get_param_from_db(self.db, 'path_to_community')
+            paths.append(fileName)
+            set_param_to_db(self.db, 'path_to_community', paths)
+            self.fill_path_find()
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication

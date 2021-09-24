@@ -10,15 +10,12 @@ import asyncio
 import json
 
 
-def get_param_from_db(param_name):
-    db = dataset.connect('sqlite:///../data/icao_base.db')
+def get_param_from_db(db, param_name)->list:
     table_settings = db['settings']
     param = json.loads(table_settings.find_one(param=param_name)['content'])
-    db.close()
     return param
 
-def set_param_to_db(param_name, content):
-    db = dataset.connect('sqlite:///../data/icao_base.db')
+def set_param_to_db(db, param_name, content):
     table_settings = db['settings']
     add_dict = {
         'param': param_name,
@@ -30,7 +27,6 @@ def set_param_to_db(param_name, content):
         table_settings.update(add_dict, ['id'])
     else:
         table_settings.insert(add_dict)
-    db.close()
 
 async def get_name_port(icao_kod, asession, queue):
     url = f'https://skyvector.com/airport/{icao_kod}'
