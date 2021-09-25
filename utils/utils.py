@@ -8,7 +8,9 @@ from collections.abc import Iterable
 from requests_html import AsyncHTMLSession
 import asyncio
 import json
-
+from pathlib import Path
+from itertools import chain
+import queue
 
 def get_param_from_db(db, param_name)->list:
     table_settings = db['settings']
@@ -28,31 +30,34 @@ def set_param_to_db(db, param_name, content):
     else:
         table_settings.insert(add_dict)
 
-async def get_name_port(icao_kod, asession, queue):
-    url = f'https://skyvector.com/airport/{icao_kod}'
+async def get_name_port(icao_kod, asession, q):
+    url = f'https://skyvector.com/airport/{icao_kod[0]}'
     r = await asession.get(url)
     rez = r.html.find('div.titlebgrighta', first=True)
     if rez:
-        print('rez=', rez.text)
-        await queue.put(icao_kod)
+        q.put(icao_kod)
 
 
-async def check_sky_vector_icao_codes(icao_codes: Iterable, queue) -> list:
+async def check_sky_vector_icao_codes(icao_codes: Iterable, q) -> list:
     asession = AsyncHTMLSession()
     tasks = []
     for el in icao_codes:
-        task = asyncio.create_task(get_name_port(el, asession, queue))
+        task = asyncio.create_task(get_name_port(el, asession, q))
         tasks.append(task)
 
     await asyncio.gather(*tasks)
 
 
-def community_ikao():
+def community_ikao(db):
     # DIR_COMMUNYTI = path.join('c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\community\\')
-    DIR_COMMUNYTI = path.join(
-        'c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\Official\\Steam\\')
-    file_list = listdir(DIR_COMMUNYTI)
-    db = dataset.connect('sqlite:///../data/icao_base.db')
+    # DIR_COMMUNYTI = path.join(
+    #     'c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\Official\\Steam\\')
+    dirs = get_param_from_db(db, 'path_to_community')
+    dirs_path = [list(Path(path_).iterdir()) for path_ in dirs]
+    file_list = [elem.stem for elem in chain(*dirs_path)]
+
+
+
     table_my = db['my_data']
     temp_port_check = set()
     temp_del = set()
@@ -65,14 +70,16 @@ def community_ikao():
                 break
             port_icao_base = db['ikao_data'].find_one(icao_code=test_name.upper())
             if port_icao_base:
-                temp_port_check.add(test_name)
+                temp_port_check.add((test_name, name))
             else:
-                temp_del.add(test_name)
+                temp_del.add((test_name, name))
 
-    queue = asyncio.Queue()
-    asyncio.run(check_sky_vector_icao_codes(temp_del, queue))
-    db.close()
-    print(queue)
+    q = queue.Queue()
+    asyncio.run(check_sky_vector_icao_codes(temp_del, q))
+    while not q.empty():
+        temp_port_check.add(q.get())
+    # print(temp_port_check)
+    return temp_port_check
 
 
 def convert_csv():
@@ -157,14 +164,5 @@ def data_from_skyvector(icao_kod):
 if __name__ == '__main__':
     # community_ikao()
     # print(data_from_skyvector('URM1'))
-    # community_ikao()
-    # from requests_html import HTMLSession
-    # session = HTMLSession()
-    # url = f'https://skyvector.com/airport/URM1'
-    # r = session.get(url)
-    # rez = r.html.find('div.titlebgrighta', first=True)
-    # arr = ['c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\Official\\Steam\\',
-    #        'c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\community\\']
-    # set_param_to_db('path_to_community', arr)
-    rez = get_param_from_db('path_to_community')
-    print(rez)
+    db = dataset.connect('sqlite:///../data/icao_base.db')
+    community_ikao(db)

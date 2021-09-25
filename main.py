@@ -9,7 +9,7 @@ import random
 import MainWindow  # Это наш конвертированный файл дизайна
 import math
 from loguru import logger
-from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db
+from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao
 from utils.map import create_map
 
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
@@ -43,6 +43,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.findButtonSky.clicked.connect(self.find_skyvector)
         self.pushAddPath.clicked.connect(self.add_patch)
         self.pushDelPatch.clicked.connect(self.rem_patch)
+        self.pushFindNullPorts.clicked.connect(self.find_null_ports)
         self.findButtonApinfo.clicked.connect(self.find_appinfo)
         self.showAllButton.clicked.connect(self.fill_my_ports)
         self.addButton.clicked.connect(self.add_my_port)
@@ -69,6 +70,14 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.init_map()
         self.paths = []
         self.fill_path_find()
+
+    def find_null_ports(self):
+        ports = community_ikao(self.db)
+
+        self.tableWidget_2.setRowCount(len(ports))
+        for i, port in enumerate(ports):
+            self.tableWidget_2.setItem(i, 0, QTableWidgetItem(port[0]))
+            self.tableWidget_2.setItem(i, 1, QTableWidgetItem(port[1]))
 
 
     def show_port_map(self):

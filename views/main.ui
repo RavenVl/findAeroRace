@@ -28,7 +28,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -708,6 +708,22 @@
         <height>301</height>
        </rect>
       </property>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>ICAO</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Pacets</string>
+       </property>
+      </column>
      </widget>
     </widget>
    </widget>
