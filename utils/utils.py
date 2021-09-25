@@ -1,24 +1,26 @@
-from os import path, listdir
-import re
-import dataset
-import csv
-import requests
-from bs4 import BeautifulSoup, SoupStrainer
-from collections.abc import Iterable
-from requests_html import AsyncHTMLSession
 import asyncio
+import csv
 import json
-from pathlib import Path
-from itertools import chain
 import queue
+import re
+from collections.abc import Iterable
+from itertools import chain
+from pathlib import Path
 
-def get_param_from_db(db, param_name)->list:
-    table_settings = db['settings']
+import dataset
+import requests
+from bs4 import BeautifulSoup
+from requests_html import AsyncHTMLSession
+
+
+def get_param_from_db(db_, param_name) -> list:
+    table_settings = db_['settings']
     param = json.loads(table_settings.find_one(param=param_name)['content'])
     return param
 
-def set_param_to_db(db, param_name, content):
-    table_settings = db['settings']
+
+def set_param_to_db(db_, param_name, content):
+    table_settings = db_['settings']
     add_dict = {
         'param': param_name,
         'content': json.dumps(content)
@@ -30,6 +32,7 @@ def set_param_to_db(db, param_name, content):
     else:
         table_settings.insert(add_dict)
 
+
 async def get_name_port(icao_kod, asession, q):
     url = f'https://skyvector.com/airport/{icao_kod[0]}'
     r = await asession.get(url)
@@ -38,7 +41,7 @@ async def get_name_port(icao_kod, asession, q):
         q.put(icao_kod)
 
 
-async def check_sky_vector_icao_codes(icao_codes: Iterable, q) -> list:
+async def check_sky_vector_icao_codes(icao_codes: Iterable, q):
     asession = AsyncHTMLSession()
     tasks = []
     for el in icao_codes:
@@ -48,17 +51,13 @@ async def check_sky_vector_icao_codes(icao_codes: Iterable, q) -> list:
     await asyncio.gather(*tasks)
 
 
-def community_ikao(db):
-    # DIR_COMMUNYTI = path.join('c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\community\\')
-    # DIR_COMMUNYTI = path.join(
-    #     'c:\\users\\raven\\appdata\\roaming\\microsoft flight simulator\\packages\\Official\\Steam\\')
-    dirs = get_param_from_db(db, 'path_to_community')
+def community_ikao(db_):
+
+    dirs = get_param_from_db(db_, 'path_to_community')
     dirs_path = [list(Path(path_).iterdir()) for path_ in dirs]
     file_list = [elem.stem for elem in chain(*dirs_path)]
 
-
-
-    table_my = db['my_data']
+    table_my = db_['my_data']
     temp_port_check = set()
     temp_del = set()
     for name in file_list:
@@ -68,7 +67,7 @@ def community_ikao(db):
             port_my_base = table_my.find_one(icao_code=test_name.upper())
             if port_my_base:
                 break
-            port_icao_base = db['ikao_data'].find_one(icao_code=test_name.upper())
+            port_icao_base = db_['ikao_data'].find_one(icao_code=test_name.upper())
             if port_icao_base:
                 temp_port_check.add((test_name, name))
             else:
@@ -164,5 +163,6 @@ def data_from_skyvector(icao_kod):
 if __name__ == '__main__':
     # community_ikao()
     # print(data_from_skyvector('URM1'))
-    db = dataset.connect('sqlite:///../data/icao_base.db')
-    community_ikao(db)
+    # db = dataset.connect('sqlite:///../data/icao_base.db')
+    # community_ikao(db)
+    pass

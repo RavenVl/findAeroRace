@@ -1,16 +1,17 @@
+import math
+import random
 import sys  # sys нужен для передачи argv в QApplication
+
 import dataset
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QUrl
-
+from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
 from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication, QFileDialog
-from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView, QWebEnginePage as QWebPage
-import random
-import MainWindow  # Это наш конвертированный файл дизайна
-import math
 from loguru import logger
-from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao
+
+import MainWindow  # Это наш конвертированный файл дизайна
 from utils.map import create_map
+from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao
 
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
@@ -70,15 +71,15 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.init_map()
         self.paths = []
         self.fill_path_find()
+        self.crafts = None
 
     def find_null_ports(self):
         ports = community_ikao(self.db)
 
-        self.tableWidget_2.setRowCount(len(ports))
+        self.tableLostPac.setRowCount(len(ports))
         for i, port in enumerate(ports):
-            self.tableWidget_2.setItem(i, 0, QTableWidgetItem(port[0]))
-            self.tableWidget_2.setItem(i, 1, QTableWidgetItem(port[1]))
-
+            self.tableLostPac.setItem(i, 0, QTableWidgetItem(port[0]))
+            self.tableLostPac.setItem(i, 1, QTableWidgetItem(port[1]))
 
     def show_port_map(self):
         self.find_port_depart()
@@ -196,6 +197,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             elif max_dist <= 500:
                 size_map = 5
             elif max_dist <= 1000:
+                size_map = 4
+            else:
                 size_map = 4
             create_map(port_depart=self.port_depart, arr_legs=rez_map, size=size_map)
             self.web.load(QUrl("file:///map.html"))
@@ -329,9 +332,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def fill_path_find(self):
         self.paths = get_param_from_db(self.db, 'path_to_community')
-        self.tableWidget.setRowCount(len(self.paths))
+        self.tablePath.setRowCount(len(self.paths))
         for i, path in enumerate(self.paths):
-            self.tableWidget.setItem(i, 0, QTableWidgetItem(path))
+            self.tablePath.setItem(i, 0, QTableWidgetItem(path))
 
     def add_patch(self):
         options = QFileDialog.Options()
@@ -346,9 +349,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             set_param_to_db(self.db, 'path_to_community', self.paths)
             self.fill_path_find()
 
-
     def rem_patch(self):
-        row = self.tableWidget.currentItem().text()
+        row = self.tablePath.currentItem().text()
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Warning)
         msgBox.setText(f"Реально хотите удалить ?")

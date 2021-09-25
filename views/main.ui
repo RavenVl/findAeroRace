@@ -28,7 +28,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -614,7 +614,7 @@
      <attribute name="title">
       <string>Utils</string>
      </attribute>
-     <widget class="QTableWidget" name="tableWidget">
+     <widget class="QTableWidget" name="tablePath">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -699,7 +699,7 @@
        <string>Проверить пропущенные порты</string>
       </property>
      </widget>
-     <widget class="QTableWidget" name="tableWidget_2">
+     <widget class="QTableWidget" name="tableLostPac">
       <property name="geometry">
        <rect>
         <x>10</x>
