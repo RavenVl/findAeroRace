@@ -1,0 +1,9 @@
+gmplot~=1.4.1
+dataset~=1.5.0
+requests~=2.26.0
+bs4~=0.0.1
+beautifulsoup4~=4.10.0
+PyQt5~=5.15.4
+loguru~=0.5.3
+py2exe~=0.10.4.1
+python-dotenv~=0.19.0
