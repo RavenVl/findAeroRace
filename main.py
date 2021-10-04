@@ -1,16 +1,17 @@
+import math
+import random
 import sys  # sys нужен для передачи argv в QApplication
+
 import dataset
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import QUrl
-
-from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication
-from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView, QWebEnginePage as QWebPage
-import random
-import MainWindow  # Это наш конвертированный файл дизайна
-import math
+from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox, QApplication, QFileDialog
 from loguru import logger
-from utils.utils import data_from_skyvector
+
+import MainWindow  # Это наш конвертированный файл дизайна
 from utils.map import create_map
+from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao
 
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
@@ -41,6 +42,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.db = dataset.connect('sqlite:///data/icao_base.db')
         self.findButton.clicked.connect(self.filter_my_ports)
         self.findButtonSky.clicked.connect(self.find_skyvector)
+        self.pushAddPath.clicked.connect(self.add_patch)
+        self.pushDelPatch.clicked.connect(self.rem_patch)
+        self.pushFindNullPorts.clicked.connect(self.find_null_ports)
         self.findButtonApinfo.clicked.connect(self.find_appinfo)
         self.showAllButton.clicked.connect(self.fill_my_ports)
         self.addButton.clicked.connect(self.add_my_port)
@@ -65,6 +69,17 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         #     add map view
         self.web = QWebView(self.tab)
         self.init_map()
+        self.paths = []
+        self.fill_path_find()
+        self.crafts = None
+
+    def find_null_ports(self):
+        ports = community_ikao(self.db)
+
+        self.tableLostPac.setRowCount(len(ports))
+        for i, port in enumerate(ports):
+            self.tableLostPac.setItem(i, 0, QTableWidgetItem(port[0]))
+            self.tableLostPac.setItem(i, 1, QTableWidgetItem(port[1]))
 
     def show_port_map(self):
         self.find_port_depart()
@@ -182,6 +197,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             elif max_dist <= 500:
                 size_map = 5
             elif max_dist <= 1000:
+                size_map = 4
+            else:
                 size_map = 4
             create_map(port_depart=self.port_depart, arr_legs=rez_map, size=size_map)
             self.web.load(QUrl("file:///map.html"))
@@ -312,6 +329,42 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableMyPorts.setItem(i, 7, QTableWidgetItem(port['longitude']))
             self.tableMyPorts.setItem(i, 8, QTableWidgetItem(port['runway_elevation']))
             self.tableMyPorts.setItem(i, 9, QTableWidgetItem(str(port['id'])))
+
+    def fill_path_find(self):
+        self.paths = get_param_from_db(self.db, 'path_to_community')
+        self.tablePath.setRowCount(len(self.paths))
+        for i, path in enumerate(self.paths):
+            self.tablePath.setItem(i, 0, QTableWidgetItem(path))
+
+    def add_patch(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        options |= QFileDialog.ShowDirsOnly
+        options |= QFileDialog.DontResolveSymlinks
+        # fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "",
+        #                                           "All Files (*);;Python Files (*.py)", options=options)
+        fileName = QFileDialog.getExistingDirectory(self, 'Select a directory', "", options=options)
+        if fileName:
+            self.paths.append(fileName)
+            set_param_to_db(self.db, 'path_to_community', self.paths)
+            self.fill_path_find()
+
+    def rem_patch(self):
+        row = self.tablePath.currentItem().text()
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setText(f"Реально хотите удалить ?")
+        msgBox.setWindowTitle("Удаление")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        returnValue = msgBox.exec()
+        if returnValue == QMessageBox.Ok:
+            try:
+                self.paths.remove(row)
+                set_param_to_db(self.db, 'path_to_community', self.paths)
+                self.fill_path_find()
+            except Exception as e:
+                logger.error(e)
 
 
 def main():

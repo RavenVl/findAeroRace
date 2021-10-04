@@ -28,7 +28,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -412,6 +412,9 @@
         <height>521</height>
        </rect>
       </property>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
       <column>
        <property name="text">
         <string>ICAO</string>
@@ -605,6 +608,122 @@
       <property name="text">
        <string>🔍 skyvector</string>
       </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Utils</string>
+     </attribute>
+     <widget class="QTableWidget" name="tablePath">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>621</width>
+        <height>161</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>621</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>621</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
+       <bool>false</bool>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Path</string>
+       </property>
+      </column>
+     </widget>
+     <widget class="QLabel" name="label_14">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Пути к аддонам:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushAddPath">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>30</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Добавить</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushDelPatch">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>60</y>
+        <width>75</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Удалить</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushFindNullPorts">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>200</y>
+        <width>201</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Проверить пропущенные порты</string>
+      </property>
+     </widget>
+     <widget class="QTableWidget" name="tableLostPac">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>240</y>
+        <width>621</width>
+        <height>301</height>
+       </rect>
+      </property>
+      <attribute name="horizontalHeaderCascadingSectionResizes">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>ICAO</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Pacets</string>
+       </property>
+      </column>
      </widget>
     </widget>
    </widget>
