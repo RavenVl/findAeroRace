@@ -75,7 +75,10 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.crafts = None
 
     def find_null_ports(self):
+        QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         ports = community_ikao(self.db)
+        QApplication.restoreOverrideCursor()
+
 
         self.tableLostPac.setRowCount(len(ports))
         for i, port in enumerate(ports):
