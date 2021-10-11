@@ -61,9 +61,10 @@ def community_ikao(db_):
     temp_port_check = set()
     temp_del = set()
     for name in file_list:
-        reg_exp = r"-([a-zA-Z]{4})-"
+        reg_exp = r"-[a-zA-Z]{4}-|^[a-zA-Z]{4}-|-[a-zA-Z]{4}$"
         ikao_kod = re.findall(reg_exp, name)
         for test_name in ikao_kod:
+            test_name = test_name.replace('-', '')
             port_my_base = table_my.find_one(icao_code=test_name.upper())
             if port_my_base:
                 break

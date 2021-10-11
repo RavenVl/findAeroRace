@@ -39,6 +39,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         # и т.д. в файле design.py
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+        self.tabWidget.setCurrentIndex(0)
         self.db = dataset.connect('sqlite:///data/icao_base.db')
         self.findButton.clicked.connect(self.filter_my_ports)
         self.findButtonSky.clicked.connect(self.find_skyvector)
