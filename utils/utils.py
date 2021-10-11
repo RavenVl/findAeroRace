@@ -52,7 +52,7 @@ async def check_sky_vector_icao_codes(icao_codes: Iterable, q):
 
 
 def community_ikao(db_):
-
+    # TODO add mask file -ICAO
     dirs = get_param_from_db(db_, 'path_to_community')
     dirs_path = [list(Path(path_).iterdir()) for path_ in dirs]
     file_list = [elem.stem for elem in chain(*dirs_path)]
