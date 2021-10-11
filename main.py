@@ -258,6 +258,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 tx1['my_data'].insert(add_dict)
 
             self.show_message('Порт Добавлен')
+            self.coordEdit.setText('')
 
     def find_appinfo(self):
         text = self.icaoEdit.text()
