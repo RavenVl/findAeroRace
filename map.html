@@ -7,8 +7,8 @@
 <script type="text/javascript">
     function initialize() {
         var map = new google.maps.Map(document.getElementById("map_canvas"), {
-            zoom: 6,
-            center: new google.maps.LatLng(55.617917, 12.655972)
+            zoom: 4,
+            center: new google.maps.LatLng(8.601261, 123.334481)
         });
 
         var marker_icon_FF0000 = {
@@ -17,9 +17,9 @@
         };
 
         new google.maps.Marker({
-            position: new google.maps.LatLng(55.6179, 12.6560),
-            title: "Kastrup",
-            label: "EKCH",
+            position: new google.maps.LatLng(8.6013, 123.3345),
+            title: "Dipolog",
+            label: "RPMG",
             icon: marker_icon_FF0000,
             map: map
         });
@@ -30,19 +30,104 @@
         };
 
         new google.maps.Marker({
-            position: new google.maps.LatLng(55.5302, 13.3716),
-            title: "Sturup",
-            label: "ESMS",
+            position: new google.maps.LatLng(-0.9264, 131.1212),
+            title: "Jefman",
+            label: "WASS",
             icon: marker_icon_6495ED,
             map: map
         });
 
         new google.maps.Marker({
-            position: new google.maps.LatLng(55.0633, 14.7596),
-            title: "Bornholm/Ronne Airport",
-            label: "EKRN",
+            position: new google.maps.LatLng(-0.9264, 131.1212),
+            title: "Jefman",
+            label: "WASS",
             icon: marker_icon_6495ED,
             map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(24.8267, 125.1447),
+            title: "Shimojishima",
+            label: "RORS",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(25.0697, 121.5525),
+            title: "Taipei",
+            label: "RCSS",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(14.5086, 121.0196),
+            title: "Manila",
+            label: "RPLL",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(22.1496, 113.5916),
+            title: "Macau",
+            label: "VMMC",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(7.1255, 125.6458),
+            title: "Davao",
+            label: "RPMD",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(22.3089, 113.9147),
+            title: "Hong Kong",
+            label: "VHHH",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(8.9513, 125.4780),
+            title: "Butuan",
+            label: "RPME",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(2.2616, 111.9853),
+            title: "Sibu",
+            label: "WBGS",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Marker({
+            position: new google.maps.LatLng(10.8188, 106.6520),
+            title: "Tan Son Nhat International Airport",
+            label: "VVTS",
+            icon: marker_icon_6495ED,
+            map: map
+        });
+
+        new google.maps.Polyline({
+            clickable: false,
+            geodesic: true,
+            strokeColor: "#FF0000",
+            strokeOpacity: 1.000000,
+            strokeWeight: 3,
+            map: map,
+            path: [
+                new google.maps.LatLng(8.601261, 123.334481),
+                new google.maps.LatLng(7.125522, 125.645778),
+            ]
         });
 
     }

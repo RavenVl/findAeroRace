@@ -69,10 +69,25 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.comboBox.activated[str].connect(self.combo_handler)
         #     add map view
         self.web = QWebView(self.tab)
-        self.init_map()
+
         self.paths = []
         self.fill_path_find()
         self.crafts = None
+        self.listWidget.currentItemChanged.connect(self.item_clicked)
+        self.port_dist = None
+        self.arr_legs = None
+        self.size_map = 6
+        self.init_map()
+
+    def create_map(self):
+        create_map(port_depart=self.port_depart, arr_legs=self.arr_legs, port_dest=self.port_dist, size=self.size_map)
+        self.web.load(QUrl("file:///map.html"))
+        self.web.show()
+
+    def item_clicked(self, arg=None):
+        temp= 1
+        self.port_dist = [item for item in self.ports if item["icao_code"] == arg.text()[0:4]][0]
+        self.create_map()
 
     def find_null_ports(self):
         QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
@@ -87,16 +102,12 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def show_port_map(self):
         self.find_port_depart()
-        create_map(port_depart=self.port_depart)
-        self.web.load(QUrl("file:///map.html"))
-        self.web.show()
+        self.create_map()
         self.listWidget.clear()
 
     def init_map(self):
         self.web.setGeometry(QtCore.QRect(400, 10, 651, 591))
-        create_map()
-        self.web.load(QUrl("file:///map.html"))
-        self.web.show()
+        self.create_map()
 
     def set_aircrafts(self):
         self.crafts = list(self.db['aircrafts'].all())
@@ -105,7 +116,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def combo_handler(self, text):
         temp = text.split('-')[1][:-4]
-        print(temp)
         self.len = float(text.split('-')[1][:-4])
 
     def show_message(self, text):
@@ -176,9 +186,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             logger.error(e)
 
         self.fromEdit.setText(self.port_depart['icao_code'])
-        create_map(port_depart=self.port_depart)
-        self.web.load(QUrl("file:///map.html"))
-        self.web.show()
+        self.create_map()
         self.listWidget.clear()
 
     def find_flights(self):
@@ -210,9 +218,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
                 size_map = 4
             else:
                 size_map = 4
-            create_map(port_depart=self.port_depart, arr_legs=rez_map, size=size_map)
-            self.web.load(QUrl("file:///map.html"))
-            self.web.show()
+            self.size_map = size_map
+            self.arr_legs = rez_map
+            self.create_map()
         else:
             self.show_message("Нет портов в доступности!")
 
