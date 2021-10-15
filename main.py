@@ -85,8 +85,9 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.web.show()
 
     def item_clicked(self, arg=None):
-        self.port_dist = [item for item in self.arr_legs if item["icao_code"] == arg.text()[0:4]][0]
-        self.create_map()
+        if arg is not None:
+            self.port_dist = [item for item in self.arr_legs if item["icao_code"] == arg.text()[0:4]][0]
+            self.create_map()
 
     def find_null_ports(self):
         QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
@@ -114,7 +115,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.len = float(self.crafts[0]["len"])
 
     def combo_handler(self, text):
-        temp = text.split('-')[1][:-4]
         self.len = float(text.split('-')[1][:-4])
 
     def show_message(self, text):
