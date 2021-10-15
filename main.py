@@ -85,8 +85,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.web.show()
 
     def item_clicked(self, arg=None):
-        temp= 1
-        self.port_dist = [item for item in self.ports if item["icao_code"] == arg.text()[0:4]][0]
+        self.port_dist = [item for item in self.arr_legs if item["icao_code"] == arg.text()[0:4]][0]
         self.create_map()
 
     def find_null_ports(self):
