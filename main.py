@@ -168,7 +168,13 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         return dist
 
     def find_rand_port(self):
-        self.port_depart = random.choice(self.ports)
+
+        list_ports = [port for port in self.ports if float(port["runway_length"]) * 3.281 >= self.len]
+        try:
+            self.port_depart = random.choice(list_ports)
+        except IndexError as e:
+            logger.error(e)
+
         self.fromEdit.setText(self.port_depart['icao_code'])
         create_map(port_depart=self.port_depart)
         self.web.load(QUrl("file:///map.html"))
