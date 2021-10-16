@@ -177,7 +177,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         return dist
 
     def find_rand_port(self):
-
+        self.port_dist = None
+        self.arr_legs = None
         list_ports = [port for port in self.ports if float(port["runway_length"]) * 3.281 >= self.len]
         try:
             self.port_depart = random.choice(list_ports)
@@ -224,6 +225,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.show_message("Нет портов в доступности!")
 
     def find_port_depart(self):
+        self.port_dist = None
+        self.arr_legs = None
         if len(self.fromEdit.text()) > 0:
             temp_port = self.db['my_data'].find_one(icao_code=self.fromEdit.text())
             if temp_port:
