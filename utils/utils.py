@@ -153,6 +153,8 @@ def data_from_skyvector(icao_kod):
                 rez['runway_length'] = float(el.find('td').text.split()[0]) / 3.281
         except IndexError as e:
             rez['runway_length'] = 0
+        except ValueError as e:
+            rez['runway_length'] = 0
         try:
             if el.find(string='Elevation:'):
                 rez['runway_elevation'] = float(el.find('td').text) / 3.281
