@@ -86,14 +86,15 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def item_clicked(self, arg=None):
         if arg is not None:
-            self.port_dist = [item for item in self.arr_legs if item["icao_code"] == arg.text()[0:4]][0]
-            self.create_map()
+            filter_port = next((item for item in self.arr_legs if item["icao_code"] == arg.text()[0:4]), None)
+            if filter_port is not None:
+                self.port_dist = filter_port
+                self.create_map()
 
     def find_null_ports(self):
         QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         ports = community_ikao(self.db)
         QApplication.restoreOverrideCursor()
-
 
         self.tableLostPac.setRowCount(len(ports))
         for i, port in enumerate(ports):
