@@ -56,6 +56,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.delButton.clicked.connect(self.del_record)
         self.writeButton_2.clicked.connect(self.write_edit)
         self.findDubleButton.clicked.connect(self.findDouble)
+        self.pushDelDub.clicked.connect(self.del_double)
         self.ports = None
         self.port_depart = None
         self.len = 0
@@ -80,6 +81,24 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.size_map = 6
         self.init_map()
 
+    def del_double(self):
+        row = self.tableDouble.currentItem().row()
+        cell = self.tableDouble.item(row, 0).text()
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setText(f"Реально хотите удалить?")
+        msgBox.setWindowTitle("Удаление")
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        returnValue = msgBox.exec()
+        if returnValue == QMessageBox.Ok:
+            try:
+                self.db['my_data'].delete(id=cell)
+                self.fill_my_ports()
+            except Exception as e:
+                logger.error(e)
+        self.findDouble()
+
     def findDouble(self):
         sql_text = '''SELECT a.*
                         FROM my_data a
@@ -96,13 +115,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableDouble.setItem(i, 0, QTableWidgetItem(str(port['id'])))
             self.tableDouble.setItem(i, 1, QTableWidgetItem(port['icao_code']))
             self.tableDouble.setItem(i, 2, QTableWidgetItem(port['name_eng']))
-            # self.tableDouble.setItem(i, 2, QTableWidgetItem(port['city_eng']))
-            # self.tableDouble.setItem(i, 3, QTableWidgetItem(port['country_eng']))
-            # self.tableDouble.setItem(i, 5, QTableWidgetItem(port['runway_length']))
-            # self.tableDouble.setItem(i, 6, QTableWidgetItem(port['latitude']))
-            # self.tableDouble.setItem(i, 7, QTableWidgetItem(port['longitude']))
-            # self.tableDouble.setItem(i, 8, QTableWidgetItem(port['runway_elevation']))
-            # self.tableDouble.setItem(i, 9, QTableWidgetItem(str(port['id'])))
+
+
 
     def create_map(self):
         create_map(port_depart=self.port_depart, arr_legs=self.arr_legs, port_dest=self.port_dist, size=self.size_map)
