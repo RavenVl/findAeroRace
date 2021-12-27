@@ -55,6 +55,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.findFlyButton.clicked.connect(self.find_flights)
         self.delButton.clicked.connect(self.del_record)
         self.writeButton_2.clicked.connect(self.write_edit)
+        self.findDubleButton.clicked.connect(self.findDouble)
         self.ports = None
         self.port_depart = None
         self.len = 0
@@ -78,6 +79,30 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.arr_legs = None
         self.size_map = 6
         self.init_map()
+
+    def findDouble(self):
+        sql_text = '''SELECT a.*
+                        FROM my_data a
+                        JOIN (SELECT icao_code, COUNT(*)
+                            FROM my_data 
+                            GROUP BY icao_code
+                            HAVING count(*) > 1 ) b
+                        ON a.icao_code = b.icao_code
+                        order by icao_code
+                        '''
+        result = list(self.db.query(sql_text))
+        self.tableDouble.setRowCount(len(result))
+        for i, port in enumerate(result):
+            self.tableDouble.setItem(i, 0, QTableWidgetItem(str(port['id'])))
+            self.tableDouble.setItem(i, 1, QTableWidgetItem(port['icao_code']))
+            self.tableDouble.setItem(i, 2, QTableWidgetItem(port['name_eng']))
+            # self.tableDouble.setItem(i, 2, QTableWidgetItem(port['city_eng']))
+            # self.tableDouble.setItem(i, 3, QTableWidgetItem(port['country_eng']))
+            # self.tableDouble.setItem(i, 5, QTableWidgetItem(port['runway_length']))
+            # self.tableDouble.setItem(i, 6, QTableWidgetItem(port['latitude']))
+            # self.tableDouble.setItem(i, 7, QTableWidgetItem(port['longitude']))
+            # self.tableDouble.setItem(i, 8, QTableWidgetItem(port['runway_elevation']))
+            # self.tableDouble.setItem(i, 9, QTableWidgetItem(str(port['id'])))
 
     def create_map(self):
         create_map(port_depart=self.port_depart, arr_legs=self.arr_legs, port_dest=self.port_dist, size=self.size_map)
