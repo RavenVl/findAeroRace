@@ -310,11 +310,17 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         except ValueError as e:
             self.show_message('Заполни все поля!!!')
         else:
-            with self.db as tx1:
-                tx1['my_data'].insert(add_dict)
+            text = add_dict['icao_code']
+            port = self.db['my_data'].find_one(icao_code=text)
+            if port:
+                self.show_message('Такой порт уже есть!!!')
+            else:
 
-            self.show_message('Порт Добавлен')
-            self.coordEdit.setText('')
+                with self.db as tx1:
+                    tx1['my_data'].insert(add_dict)
+
+                self.show_message('Порт Добавлен')
+                self.coordEdit.setText('')
 
     def find_appinfo(self):
         text = self.icaoEdit.text()
