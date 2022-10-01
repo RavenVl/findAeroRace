@@ -239,8 +239,11 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             f'FROM {self.port_depart["icao_code"]}  len runway - {float(self.port_depart["runway_length"]) * 3.281} ft',
             "TO:"]
         for port in self.ports:
-            dist = IcaoApp.calc_dist(self.port_depart['latitude'], port['latitude'], self.port_depart['longitude'],
+            try:
+                dist = IcaoApp.calc_dist(self.port_depart['latitude'], port['latitude'], self.port_depart['longitude'],
                                      port['longitude'])
+            except ValueError:
+                self.show_message(f'Eror IKAO:${port["icao_code"]}')
             if max_dist > dist > 1 and float(port['runway_length']) * 3.281 >= self.len:
                 rez.append(
                     f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
