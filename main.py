@@ -80,6 +80,12 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.arr_legs = None
         self.size_map = 6
         self.init_map()
+        self.max_size_airport = [1400, 4500, 12000]
+        self.init_max_size_airport()
+
+    def init_max_size_airport(self):
+        self.comboMaxSize.clear()
+        self.comboMaxSize.addItems([str(el) for el in self.max_size_airport if el >= self.len])
 
     def del_double(self):
         row = self.tableDouble.currentItem().row()
@@ -116,8 +122,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.tableDouble.setItem(i, 1, QTableWidgetItem(port['icao_code']))
             self.tableDouble.setItem(i, 2, QTableWidgetItem(port['name_eng']))
 
-
-
     def create_map(self):
         create_map(port_depart=self.port_depart, arr_legs=self.arr_legs, port_dest=self.port_dist, size=self.size_map)
         self.web.load(QUrl("file:///map.html"))
@@ -133,6 +137,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def find_null_ports(self):
         QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
         ports = community_ikao(self.db)
+        ports = [item for item in ports if '-landingchallenge-' not in item[1]]
         QApplication.restoreOverrideCursor()
 
         self.tableLostPac.setRowCount(len(ports))
@@ -156,6 +161,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     def combo_handler(self, text):
         self.len = float(text.split('-')[1][:-4])
+
+        self.init_max_size_airport()
 
     def show_message(self, text):
         msgBox = QMessageBox()
@@ -219,7 +226,8 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     def find_rand_port(self):
         self.port_dist = None
         self.arr_legs = None
-        list_ports = [port for port in self.ports if float(port["runway_length"]) * 3.281 >= self.len]
+        max_lenght = float(self.comboMaxSize.currentText())
+        list_ports = [port for port in self.ports if self.len <= float(port["runway_length"]) * 3.281 <= max_lenght]
         try:
             self.port_depart = random.choice(list_ports)
         except IndexError as e:
@@ -234,19 +242,25 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
         self.listWidget.clear()
         max_dist = float(self.distEdit.text())
+        max_lenght = float(self.comboMaxSize.currentText())
         rez_map = []
         rez = [
             f'FROM {self.port_depart["icao_code"]}  len runway - {float(self.port_depart["runway_length"]) * 3.281} ft',
             "TO:"]
         for port in self.ports:
+            dist = 0
+            size_condition = False
             try:
                 dist = IcaoApp.calc_dist(self.port_depart['latitude'], port['latitude'], self.port_depart['longitude'],
-                                     port['longitude'])
+                                         port['longitude'])
+                size_condition = max_dist > dist > 1 and max_lenght >= float(port['runway_length']) * 3.281 >= self.len
             except ValueError:
-                self.show_message(f'Eror IKAO:${port["icao_code"]}')
-            if max_dist > dist > 1 and float(port['runway_length']) * 3.281 >= self.len:
+                self.show_message(f'Eror IKAO coordinate:{port["icao_code"]}')
+            except TypeError:
+                self.show_message(f'Eror IKAO size:{port["icao_code"]}')
+            if size_condition:
                 rez.append(
-                    f'{port["icao_code"]} dist - {round(dist)} len runway - {float(port["runway_length"]) * 3.281 if port["runway_length"] != "" else 0} ft')
+                    f'{port["icao_code"]} dist - {round(dist)} len runway - {round(float(port["runway_length"]) * 3.281) if port["runway_length"] != "" else 0} ft')
                 rez_map.append(port)
         #         sort to distance
         rez = rez[:2] + sorted(rez[2:], key=lambda el: float(el.split()[3]))
