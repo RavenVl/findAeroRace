@@ -6,11 +6,23 @@ import re
 from collections.abc import Iterable
 from itertools import chain
 from pathlib import Path
+import os
 
 import dataset
 import requests
 from bs4 import BeautifulSoup
 from requests_html import AsyncHTMLSession
+
+
+def make_shortcut(source, dest_dir, dest_name):
+
+    dest_name = Path(dest_dir+dest_name)
+    try:
+        os.symlink(source, dest_name, target_is_directory=True)
+        return dest_name
+    except:
+        return None
+
 
 
 def get_param_from_db(db_, param_name) -> list:
@@ -79,9 +91,19 @@ def community_ikao(db_):
     while not q.empty():
         temp_port_check.add(q.get())
 
-
     # print(temp_port_check)
     return temp_port_check
+
+
+def find_file_name(db_, ikao_kod: str):
+    print(ikao_kod)
+    dirs = get_param_from_db(db_, 'path_to_community')
+    dirs_path = [list(Path(path_).iterdir()) for path_ in dirs if Path(path_).is_dir()]
+    file_list = [elem for elem in chain(*dirs_path)]
+    for el in file_list:
+        if f'-{ikao_kod.lower()}-' in str(el).lower():
+            return el
+    return None
 
 
 def convert_csv():

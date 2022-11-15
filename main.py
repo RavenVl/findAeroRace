@@ -11,7 +11,8 @@ from loguru import logger
 
 import MainWindow  # Это наш конвертированный файл дизайна
 from utils.map import create_map
-from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao
+from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao, find_file_name, \
+    make_shortcut
 
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
@@ -54,6 +55,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.randButton.clicked.connect(self.find_rand_port)
         self.findFlyButton.clicked.connect(self.find_flights)
         self.delButton.clicked.connect(self.del_record)
+        self.copyToComButton.clicked.connect(self.copy_to_com)
         self.writeButton_2.clicked.connect(self.write_edit)
         self.findDubleButton.clicked.connect(self.findDouble)
         self.pushDelDub.clicked.connect(self.del_double)
@@ -82,6 +84,23 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.init_map()
         self.max_size_airport = [1400, 4500, 12000]
         self.init_max_size_airport()
+
+    # TODO Сделать доступность кнопки
+    def copy_to_com(self):
+        path_community = "i:\\Packages\\Community\\"
+        path_from_copy_dist = find_file_name(self.db, self.port_dist['icao_code'])
+        path_from_copy_from = find_file_name(self.db, self.port_depart['icao_code'])
+        rez1 = make_shortcut(path_from_copy_dist, path_community, path_from_copy_dist.stem)
+        if rez1 is not None:
+            self.show_message(f'Create link {rez1} in community')
+        else:
+            self.show_message(f'Can\'t create link to {rez1} in community')
+        rez2 = make_shortcut(path_from_copy_from, path_community, path_from_copy_from.stem)
+        if rez2 is not None:
+            self.show_message(f'Create link {rez2} in community')
+        else:
+            self.show_message(f'Can\'t create link to {rez2} in community')
+
 
     def init_max_size_airport(self):
         self.comboMaxSize.clear()
