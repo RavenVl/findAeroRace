@@ -86,7 +86,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.max_size_airport = [1400, 4500, 12000]
         self.init_max_size_airport()
 
-    # TODO Сделать доступность кнопки
+
     def copy_to_com(self):
         path_community = "i:\\Packages\\Community\\"
         try:
@@ -103,12 +103,12 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         if rez1 is not None:
             self.show_message(f'Create link {rez1} in community')
         else:
-            self.show_message(f'Can\'t create link to {rez1} in community')
+            self.show_message(f'Can\'t create link to {self.port_dist["icao_code"]} in community')
         rez2 = make_shortcut(path_from_copy_from, path_community, path_from_copy_from.stem)
         if rez2 is not None:
             self.show_message(f'Create link {rez2} in community')
         else:
-            self.show_message(f'Can\'t create link to {rez2} in community')
+            self.show_message(f'Can\'t create link to {self.port_depart["icao_code"]} in community')
 
 
     def init_max_size_airport(self):

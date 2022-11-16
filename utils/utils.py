@@ -15,7 +15,9 @@ from requests_html import AsyncHTMLSession
 
 
 def make_shortcut(source, dest_dir, dest_name):
-
+    microsoft_location = Path('I:/Packages/Official/Steam')
+    if source.parent == microsoft_location:
+        return None
     dest_name = Path(dest_dir+dest_name)
     try:
         os.symlink(source, dest_name, target_is_directory=True)
