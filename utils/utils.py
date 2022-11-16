@@ -12,10 +12,10 @@ import dataset
 import requests
 from bs4 import BeautifulSoup
 from requests_html import AsyncHTMLSession
-
+from settings import MICROSOFT_LOCATION
 
 def make_shortcut(source, dest_dir, dest_name):
-    microsoft_location = Path('I:/Packages/Official/Steam')
+    microsoft_location = Path(MICROSOFT_LOCATION)
     if source.parent == microsoft_location:
         return None
     dest_name = Path(dest_dir+dest_name)

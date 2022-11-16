@@ -13,7 +13,7 @@ import MainWindow  # Это наш конвертированный файл д�
 from utils.map import create_map
 from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao, find_file_name, \
     make_shortcut
-
+from settings import PATH_COMMUNITY
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
@@ -88,7 +88,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
 
     def copy_to_com(self):
-        path_community = "i:\\Packages\\Community\\"
+        path_community = PATH_COMMUNITY
         try:
             path_from_copy_dist = find_file_name(self.db, self.port_dist['icao_code'])
         except:
