@@ -56,6 +56,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.findFlyButton.clicked.connect(self.find_flights)
         self.delButton.clicked.connect(self.del_record)
         self.copyToComButton.clicked.connect(self.copy_to_com)
+        self.copyToComButton.setDisabled(True)
         self.writeButton_2.clicked.connect(self.write_edit)
         self.findDubleButton.clicked.connect(self.findDouble)
         self.pushDelDub.clicked.connect(self.del_double)
@@ -88,8 +89,16 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
     # TODO Сделать доступность кнопки
     def copy_to_com(self):
         path_community = "i:\\Packages\\Community\\"
-        path_from_copy_dist = find_file_name(self.db, self.port_dist['icao_code'])
-        path_from_copy_from = find_file_name(self.db, self.port_depart['icao_code'])
+        try:
+            path_from_copy_dist = find_file_name(self.db, self.port_dist['icao_code'])
+        except:
+            self.show_message(f'Don\'t find arrival port')
+            return
+        try:
+            path_from_copy_from = find_file_name(self.db, self.port_depart['icao_code'])
+        except:
+            self.show_message(f'Don\'t find departure port port')
+            return
         rez1 = make_shortcut(path_from_copy_dist, path_community, path_from_copy_dist.stem)
         if rez1 is not None:
             self.show_message(f'Create link {rez1} in community')
@@ -297,6 +306,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.size_map = size_map
             self.arr_legs = rez_map
             self.create_map()
+            self.copyToComButton.setEnabled(True)
         else:
             self.show_message("Нет портов в доступности!")
 
