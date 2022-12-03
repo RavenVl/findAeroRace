@@ -1,6 +1,7 @@
 import math
 import random
 import sys  # sys нужен для передачи argv в QApplication
+from geopy import distance
 
 import dataset
 from PyQt5 import QtWidgets, QtCore, QtGui
@@ -14,6 +15,7 @@ from utils.map import create_map
 from utils.utils import data_from_skyvector, get_param_from_db, set_param_to_db, community_ikao, find_file_name, \
     make_shortcut
 from settings import PATH_COMMUNITY
+
 logger.add("error.log", level="ERROR", rotation="100 MB", format="{time} - {level} - {message}")
 
 
@@ -86,7 +88,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.max_size_airport = [1400, 4500, 12000]
         self.init_max_size_airport()
 
-
     def copy_to_com(self):
         path_community = PATH_COMMUNITY
         try:
@@ -109,7 +110,6 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
             self.show_message(f'Create link {rez2} in community')
         else:
             self.show_message(f'Can\'t create link to {self.port_depart["icao_code"]} in community')
-
 
     def init_max_size_airport(self):
         self.comboMaxSize.clear()
@@ -243,12 +243,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
 
     @staticmethod
     def calc_dist(lat1, lat2, lon1, lon2):
-        lon1, lat1, lon2, lat2 = map(math.radians, [float(port) for port in [lon1, lat1, lon2, lat2]])
-        dlon = lon2 - lon1
-        dlat = lat2 - lat1
-        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-        dist = 6371 * c / 1.852
+        dist = distance.distance((lat1, lon1), (lat2, lon2)).nm
         return dist
 
     def find_rand_port(self):
@@ -339,6 +334,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         else:
             rez = float(coord[0]) + float(coord[1]) / 60 + float(coord[2].replace(',', '.')) / 3600
             return -rez
+
 
     def add_my_port(self):
         try:
