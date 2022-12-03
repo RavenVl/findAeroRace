@@ -85,7 +85,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.arr_legs = None
         self.size_map = 6
         self.init_map()
-        self.max_size_airport = [1400, 4500, 12000]
+        self.max_size_airport = [1400, 4500, 18000]
         self.init_max_size_airport()
 
     def copy_to_com(self):
