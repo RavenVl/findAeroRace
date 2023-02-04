@@ -185,6 +185,8 @@ def data_from_skyvector(icao_kod):
                 rez['runway_elevation'] = float(el.find('td').text) / 3.281
         except IndexError as e:
             rez['runway_elevation'] = 0
+        except ValueError as e:
+            rez['runway_elevation'] = 0
     rez = data_from_opennav(icao_kod, rez)
     return rez
 

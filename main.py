@@ -98,7 +98,7 @@ class IcaoApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         try:
             path_from_copy_from = find_file_name(self.db, self.port_depart['icao_code'])
         except:
-            self.show_message(f'Don\'t find departure port port')
+            self.show_message(f'Don\'t find departure porty')
             return
         rez1 = make_shortcut(path_from_copy_dist, path_community, path_from_copy_dist.stem)
         if rez1 is not None:
